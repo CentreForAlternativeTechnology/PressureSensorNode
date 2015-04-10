@@ -16,7 +16,7 @@ enum PTMNRS485_MODE {
 
 class PTMNRS485 {
 	public:
-		PTMNRS485(unsigned short txPin, unsigned short rxPin, unsigned short txEnablePin);
+		PTMNRS485(unsigned short rxPin, unsigned short txPin, unsigned short txEnablePin);
 		~PTMNRS485();
 		void update();
 		bool blockingRead();

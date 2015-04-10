@@ -44,12 +44,12 @@ void PTMNRS485::requestPressure() {
 	LOG(F("copy all the memory!\r\n"));
 	memcpy(buffer, PTM_REQUEST_PRESSURE, sizeof(PTM_REQUEST_PRESSURE));
 	LOG(F("calc crc\r\n"));
-	//unsigned short crc = this->calcCRC16(buffer, sizeof(PTM_REQUEST_PRESSURE));
-	//LOG(F("put crc in buffer\r\n"));
-	//buffer[sizeof(PTM_REQUEST_PRESSURE)] = crc & 0xff;
-	//buffer[sizeof(PTM_REQUEST_PRESSURE) + 1] = (crc >> 8) & 0xff;
-	buffer[sizeof(PTM_REQUEST_PRESSURE)] = 0x24;
-	buffer[sizeof(PTM_REQUEST_PRESSURE) + 1] = 0xeb;
+	unsigned short crc = this->calcCRC16(buffer, sizeof(PTM_REQUEST_PRESSURE));
+	LOG(F("put crc in buffer\r\n"));
+	buffer[sizeof(PTM_REQUEST_PRESSURE)] = crc & 0xff;
+	buffer[sizeof(PTM_REQUEST_PRESSURE) + 1] = (crc >> 8) & 0xff;
+	//buffer[sizeof(PTM_REQUEST_PRESSURE)] = 0x24;
+	//buffer[sizeof(PTM_REQUEST_PRESSURE) + 1] = 0xeb;
 	LOG(F("transmit frame\r\n"));
 	this->transmitFrame(buffer, sizeof(PTM_REQUEST_PRESSURE) + 2);
 	LOG(F("requestPressure: frame transmitted\r\n"));
@@ -137,9 +137,10 @@ void PTMNRS485::transmitFrame(const uint8_t *frame, size_t length) {
 	while(this->sensorSerial->available()) { this->sensorSerial->read(); }
 	LOG(F("transmitFrame: enabling transmit\r\n"));
 	digitalWrite(this->txEnablePin, HIGH);
-	delay(1);
+	delayMicroseconds(3438);
 	this->sensorSerial->write(frame, length);
-	delay(1);
+	this->sensorSerial->flush();
+	delayMicroseconds(3438);
 	digitalWrite(this->txEnablePin, LOW);
 	LOG(F("transmitFrame: exit\r\n"));
 }

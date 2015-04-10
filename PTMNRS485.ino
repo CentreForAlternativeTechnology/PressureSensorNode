@@ -1,28 +1,30 @@
 #include "PTMNRS485_F.h"
-
+#include <Wire.h>
+#define EN_TX_PIN 7
 #define RX_PIN 10
 #define TX_PIN 9
-#define EN_TX_PIN 6
 
-PTMNRS485 sensor(RX_PIN, TX_PIN, EN_TX_PIN);
+PTMNRS485 *sensor;
 
 void setup()
 {
 	Serial.begin(115200);
+	Serial.println("Sensor board online...");
+	sensor = new PTMNRS485(RX_PIN, TX_PIN, EN_TX_PIN);
+	Wire.begin(4);
+	Wire.onRequest(requestEvent);
+	
+}
+
+void requestEvent() {
+	Wire.write(((uint8_t *)(sensor->getReadingPtr())), 2);
+	char buffer[60];
+	sprintf(buffer, "Sent 0x%x, 0x%x\r\n", ((uint8_t *)(sensor->getReadingPtr()))[0], ((uint8_t *)(sensor->getReadingPtr()))[1]);
+	Serial.print(buffer);
 }
 
 void loop()
 {
-	if(!sensor.blockingRead()) {
-		Serial.print(F("Sensor read failed\r\n"));
-	} else {
-		Serial.print(F("sensor read successfully - "));
-		Serial.print(sensor.getReading());
-		float value = sensor.getReading();
-		value = (value - (float)10232)/860;
-		Serial.print(F(" - "));
-		Serial.print(value);
-		Serial.println("m");
-	}
-	delay(100);
+	sensor->blockingRead();
+	Serial.println(sensor->getReading());
 }
