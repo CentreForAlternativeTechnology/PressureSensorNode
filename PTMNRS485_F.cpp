@@ -68,25 +68,20 @@ short PTMNRS485::parseRequestPressure() {
 }
 
 bool PTMNRS485::blockingRead() {
-	LOG(F("blockingRead: enter\r\n"));
 	int retryCount = 0;
 	do {
-		LOG(F("blockingRead: l1\r\n"));
 		this->setMode(PTM_IDLE);
 		this->requestTime = millis();
 		do {
-			LOG(F("blockingRead: l2\r\n"));
 			this->update();
 			delay(5);
 		} while((this->getMode() == PTM_WAITING) && ((millis() - this->requestTime) < READ_TIMEOUT));
 		retryCount++;
 	} while(this->getMode() == PTM_WAITING && retryCount < MAX_RETRIES);
-	LOG(F("blockingRead: exit\r\n"));
-	return retryCount <= MAX_RETRIES;
+	return retryCount < MAX_RETRIES;
 }
 
 void PTMNRS485::update() {
-	LOG(F("update: enter\r\n"));
 	switch(mode) {
 		case PTM_IDLE:
 			this->requestPressure();
@@ -110,7 +105,6 @@ void PTMNRS485::update() {
 			this->setMode(PTM_IDLE);
 			break;
 	}
-	LOG(F("update: exit\r\n"));
 }
 
 unsigned short PTMNRS485::calcCRC16(unsigned char *data, unsigned short count) {

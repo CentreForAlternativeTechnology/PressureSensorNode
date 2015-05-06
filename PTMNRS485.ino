@@ -25,6 +25,9 @@ void requestEvent() {
 
 void loop()
 {
-	sensor->blockingRead();
-	Serial.println(sensor->getReading());
+	if(sensor->blockingRead()) {
+		Serial.println(sensor->getReading());
+	} else {
+		Serial.println("Sensor read failed");
+	}
 }
