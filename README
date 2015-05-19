@@ -1,0 +1,2 @@
+The code in this repository interfaces with the PTMNRS485 sensor over RS485/Modbus.
+It can accept I2C requests for the raw pressure reading.
